@@ -1,6 +1,4 @@
-#  webdriver sample
-#  messing around with options
-#  e.g.
+#  connection builder sample main
 #
 #
 

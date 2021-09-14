@@ -1,3 +1,7 @@
+#  python utils for connection builder sample
+#  utilities general catchall file
+#
+
 import configparser
 import logging
 from datetime import date, datetime
