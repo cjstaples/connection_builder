@@ -3,10 +3,8 @@
 #
 
 import sys, time
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
+import utils
+from utils import get_webdriver
 
 
 def main():
@@ -15,23 +13,35 @@ def main():
     print('(cnxbld) main:')
     print()
 
+    logger = utils.initialize_logger()
+    logger.info('::: ')
+    logger.info('::: starting test session :::')
+    logger.info('::: initialize test session defaults :::')
+
+    #   TODO: config -- write cnxbld.ini if it doesn't exist
+    config = utils.config_load()
+
+    logger.info('::: parse test session arguments :::')
+    args = utils.parse_args()
+    logger.info('::: ')
+
+    sitename = utils.get_runtime_site(args, config, logger)
+    username = utils.get_runtime_username(args, config, logger)
+    password = utils.get_runtime_password(args, config, logger)
+    logger.info('::: ')
+
+
+    # TODO: test results output artifact
     # TODO: url as parameter / setting
     urlbase = 'https://wordpress.com/me'
 
-    # TODO: test results output artifact
-    #
-    # service = Service('/usr/local/bin/chromedriver')
-    # service.start()
+    driver = get_webdriver(urlbase)
+    driver.implicitly_wait(5)
 
-    # Initial version hard coded for Chromedriver, ideally to be multi platform
-    options = Options()
-    options.page_load_strategy = 'eager'
-    driver = webdriver.Chrome(options=options)
-    # driver = webdriver.Remote(service.service_url)
+    utils.login_check(driver)
 
-    driver.get(urlbase)
+    print('(cnxbld) SLEEPING::')
     time.sleep(5)
-
     driver.quit()
 
     print()
