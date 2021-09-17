@@ -9,6 +9,10 @@ import logging
 import pytest
 import unittest
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+
 # local imports
 import utils
 
@@ -22,8 +26,9 @@ class TestSample(unittest.TestCase):
         # can't assume Firefox
         # context.driver = webdriver.Firefox()
         context.driver = webdriver.Chrome()
-        context.driver.implicitly_wait(5)
+        context.driver.implicitly_wait(15)
         context.driver.maximize_window()
+        wait = WebDriverWait(context.driver, 15)
 
         # navigate to our test url
         context.driver.get(urlbase)
@@ -35,16 +40,6 @@ class TestSample(unittest.TestCase):
         password = config['default']['password']
 
         utils.login_site(context.driver, username, password)
-        # utils.login_check(context.driver)
-        # username_field = context.driver.find_element_by_id("usernameOrEmail")
-        # username_field.send_keys('cjsatyahoo')
-        #
-        # continue_button = context.driver.find_element_by_class_name("button.form-button.is-primary")
-        # continue_button.click()
-        #
-        # password_field = context.driver.find_element_by_id("password")
-        # password_field.send_keys('CJS@@yah00')
-        # continue_button.click()
 
     def test_navigation_sanity(self):
         #   verify webdriver instantiation and navigation to expected target
@@ -58,31 +53,48 @@ class TestSample(unittest.TestCase):
 
     def test_field_fname_is_not_empty(self):
         #   verify some text present in first name, default post creation is empty
+        # TODO: Something more robust than explicit waits
+        # fname = WebDriverWait(self.driver, 15).until(ec.text_to_be_present_in_element_value(By.ID, 'first_name'))
         fname = self.driver.find_element_by_id('first_name')
-        fname_content = fname.text
+        time.sleep(5)
+        fname_content = fname.get_attribute('value')
         assert fname_content != ""
 
+    #   NOTE - Last Name value currently not populated
+    @unittest.expectedFailure
     def test_field_lname_is_not_empty(self):
         #   verify some text present in last name, default post creation is empty
-        #   TODO:  CALL THIS OUT AS AN EXPECTED FAILURE IF WE LEAVE LAST NAME BLANK
         lname = self.driver.find_element_by_id('last_name')
-        lname_content = lname.text
+        time.sleep(5)
+        lname_content = lname.get_attribute('value')
         assert lname_content != ""
 
     def test_field_aboutme_is_not_empty(self):
         #   verify some text present in about me / description, default post creation is empty
         aboutme = self.driver.find_element_by_id('description')
-        aboutme_content = aboutme.text
+        time.sleep(5)
+        aboutme_content = aboutme.get_attribute('value')
         assert aboutme_content != ""
 
     def test_hide_profile_is_disabled(self):
         #   verify this setting is at the default post creation value, disabled
-        assert False
+        hide_profile_toggle = self.driver.find_element_by_id('inspector-toggle-control-0')
+        time.sleep(5)
+        hide_profile_toggle_setting = hide_profile_toggle.is_selected()
+        assert hide_profile_toggle_setting is False
 
     def test_hide_profile_can_toggle(self):
         #   verify this setting can be toggled, i.e. control is live.
         #   post test leave disabled for simplicity
-        assert False
+        hide_profile_toggle = self.driver.find_element_by_id('inspector-toggle-control-0')
+        time.sleep(5)
+        hide_profile_toggle.click()
+
+        hide_profile_toggle_checked = self.driver.find_element_by_class_name('components-form-toggle.is-checked')
+        hide_profile_toggle_checked.click()
+
+        toggle_state = hide_profile_toggle.get_attribute('value')
+        assert toggle_state == "foo"
 
     def test_profile_link_single(self):
         #   verify there is exactly one profile link

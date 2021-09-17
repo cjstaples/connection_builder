@@ -30,7 +30,6 @@ def main():
     password = utils.get_runtime_password(args, config, logger)
     logger.info('::: ')
 
-
     # TODO: test results output artifact
     # TODO: url as parameter / setting
     urlbase = 'https://wordpress.com/me'
@@ -38,7 +37,9 @@ def main():
     driver = get_webdriver(urlbase)
     driver.implicitly_wait(5)
 
-    utils.login_check(driver)
+    # TODO:  chromedriver sessions don't persist cookies, but really should handle when already logged in
+    # utils.login_check(driver)
+    utils.login_site(driver, username, password)
 
     print('(cnxbld) SLEEPING::')
     time.sleep(5)
