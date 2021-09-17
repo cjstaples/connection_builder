@@ -1,14 +1,15 @@
 #   tests for main
 #
 #
-
-
+import time
+from datetime import date, datetime
+from selenium import webdriver
 import configparser
 import logging
 import pytest
 import unittest
-from datetime import date, datetime
 
+# local imports
 import utils
 
 urlbase = 'https://wordpress.com/me'
@@ -16,48 +17,63 @@ urlbase = 'https://wordpress.com/me'
 
 class TestSample(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(context):
+        # can't assume Firefox
+        # context.driver = webdriver.Firefox()
+        context.driver = webdriver.Chrome()
+        context.driver.implicitly_wait(5)
+        context.driver.maximize_window()
+
+        # navigate to our test url
+        context.driver.get(urlbase)
+        # context.driver.title
+
+        config = utils.config_load()
+        sitename = config['default']['sitename']
+        username = config['default']['username']
+        password = config['default']['password']
+
+        utils.login_site(context.driver, username, password)
+        # utils.login_check(context.driver)
+        # username_field = context.driver.find_element_by_id("usernameOrEmail")
+        # username_field.send_keys('cjsatyahoo')
+        #
+        # continue_button = context.driver.find_element_by_class_name("button.form-button.is-primary")
+        # continue_button.click()
+        #
+        # password_field = context.driver.find_element_by_id("password")
+        # password_field.send_keys('CJS@@yah00')
+        # continue_button.click()
+
     def test_navigation_sanity(self):
         #   verify webdriver instantiation and navigation to expected target
         #   TODO: fail other tests if this fails
-        driver = utils.get_webdriver(urlbase)
+        # driver = utils.get_webdriver(urlbase)
+        current_url = self.driver.current_url
         print('(cnxtst) WAITING::')
-        current_url = driver.current_url
-        driver.implicitly_wait(5)
-        driver.quit()
+        time.sleep(5)
+        self.driver.quit()
         assert current_url == urlbase
 
     def test_field_fname_is_not_empty(self):
         #   verify some text present in first name, default post creation is empty
-        driver = utils.get_webdriver(urlbase)
-        driver.implicitly_wait(5)
-        print('(cnxtst) WAITING::')
-
-        fname = driver.find_element_by_id('first_name')
+        fname = self.driver.find_element_by_id('first_name')
         fname_content = fname.text
-        driver.quit()
-        assert fname_content is not None
+        assert fname_content != ""
 
     def test_field_lname_is_not_empty(self):
         #   verify some text present in last name, default post creation is empty
-        driver = utils.get_webdriver(urlbase)
-        driver.implicitly_wait(5)
-        print('(cnxtst) WAITING::')
-
-        lname = driver.find_element_by_id('last_name')
+        #   TODO:  CALL THIS OUT AS AN EXPECTED FAILURE IF WE LEAVE LAST NAME BLANK
+        lname = self.driver.find_element_by_id('last_name')
         lname_content = lname.text
-        driver.quit()
-        assert lname_content is not None
+        assert lname_content != ""
 
     def test_field_aboutme_is_not_empty(self):
         #   verify some text present in about me / description, default post creation is empty
-        driver = utils.get_webdriver(urlbase)
-        driver.implicitly_wait(5)
-        print('(cnxtst) WAITING::')
-
-        aboutme = driver.find_element_by_id('description')
+        aboutme = self.driver.find_element_by_id('description')
         aboutme_content = aboutme.text
-        driver.quit()
-        assert aboutme_content is not None
+        assert aboutme_content != ""
 
     def test_hide_profile_is_disabled(self):
         #   verify this setting is at the default post creation value, disabled
@@ -77,8 +93,8 @@ class TestSample(unittest.TestCase):
         compare_tolerance = 1
         gravatar_default_url = 'https://1.gravatar.com/avatar/435fe27bc5ddac453ada2f42329ee237?s=400&d=mm'
 
-        #   TODO:  read or pull down current image
-        gravatar_current_url = 'https://1.gravatar.com/avatar/435fe27bc5ddac453ada2f42329ee237?s=400&d=mm'
+        gravatar_current = self.driver.find_element_by_class_name('gravatar')
+        gravatar_current_url = gravatar_current.get_attribute("src")
 
         img_default = utils.get_image(gravatar_default_url)
         img_current = utils.get_image(gravatar_current_url)
@@ -86,6 +102,11 @@ class TestSample(unittest.TestCase):
         hash_current = utils.get_image_hash(img_current)
         hash_diff = hash_default - hash_current
         assert hash_diff == 0
+
+    @classmethod
+    def tearDownClass(context):
+        # close our browser window
+        context.driver.quit()
 
 
 if __name__ == "__main__":

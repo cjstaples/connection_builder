@@ -149,28 +149,23 @@ def login_check(driver):
     #   check for login redirect
     current_url = driver.current_url
     if current_url == url_login_redirect:
-        login_site(driver)
+        driver = login_site(driver)
     return
 
 
-def login_site(driver):
-    #   NOT RECOMMENDED PRACTICE
-    #   INSECURE WORKAROUND
-    #   NORMALLY, DO NOT DO THIS
-
+def login_site(driver, username, password):
     #
     #   CREDS GET AND POPULATE
     #
     username_field = driver.find_element_by_id("usernameOrEmail")
-    username_field.send_keys('cjsatyahoo')
+    username_field.send_keys(username)
 
-    continue_button = driver.find_element_by_class("button form-button is-primary")
+    continue_button = driver.find_element_by_class_name("button.form-button.is-primary")
     continue_button.click()
 
     password_field = driver.find_element_by_id("password")
-    password_field.send_keys('cjs@@yah00')
-
-    driver.get(url_base)
+    password_field.send_keys(password)
+    continue_button.click()
     return
 
 
