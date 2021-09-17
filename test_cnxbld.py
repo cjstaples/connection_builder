@@ -60,7 +60,7 @@ class TestSample(unittest.TestCase):
         fname_content = fname.get_attribute('value')
         assert fname_content != ""
 
-    #   NOTE - Last Name value currently not populated
+    #   NOTE - Last Name value currently not populated, intentional to show xfail behavior
     @unittest.expectedFailure
     def test_field_lname_is_not_empty(self):
         #   verify some text present in last name, default post creation is empty
@@ -69,19 +69,23 @@ class TestSample(unittest.TestCase):
         lname_content = lname.get_attribute('value')
         assert lname_content != ""
 
-    def test_field_aboutme_is_not_empty(self):
-        #   verify some text present in about me / description, default post creation is empty
+    def test_field_aboutme_contains_lyric(self):
+        #   verify that description field has george harrison lyric, default post creation is empty
         aboutme = self.driver.find_element_by_id('description')
         time.sleep(5)
         aboutme_content = aboutme.get_attribute('value')
-        assert aboutme_content != ""
+        aboutme_substring = "This song is just six words long."
+        aboutme_checkvalue = False
+        if aboutme_substring in aboutme_content:
+            aboutme_checkvalue = True
+        assert aboutme_checkvalue is True
 
     def test_hide_profile_is_disabled(self):
         #   verify this setting is at the default post creation value, disabled
         hide_profile_toggle = self.driver.find_element_by_id('inspector-toggle-control-0')
         time.sleep(5)
-        hide_profile_toggle_setting = hide_profile_toggle.is_selected()
-        assert hide_profile_toggle_setting is False
+        toggle_state = hide_profile_toggle.is_selected()
+        assert toggle_state is False
 
     def test_hide_profile_can_toggle(self):
         #   verify this setting can be toggled, i.e. control is live.
@@ -89,25 +93,27 @@ class TestSample(unittest.TestCase):
         hide_profile_toggle = self.driver.find_element_by_id('inspector-toggle-control-0')
         time.sleep(5)
         hide_profile_toggle.click()
-
         hide_profile_toggle_checked = self.driver.find_element_by_class_name('components-form-toggle.is-checked')
         hide_profile_toggle_checked.click()
+        toggle_state = hide_profile_toggle.is_selected()
+        assert toggle_state is False
 
-        toggle_state = hide_profile_toggle.get_attribute('value')
-        assert toggle_state == "foo"
-
+    @unittest.SkipTest
+    #   Test not working yet, weird socket connection error, so skip
     def test_profile_link_single(self):
         #   verify there is exactly one profile link
         #   fail if none found, or more than one found
-        assert False
+        profile_links = self.driver.find_element_by_class_name('profile-links__list')
+        profile_links_items = self.driver.find_elements_by_class_name('profile-link')
+        time.sleep(5)
+        profile_links_count = len(profile_links_items)
+        assert profile_links_count == 1
 
     def test_gravatar_image_is_default(self):
         compare_tolerance = 1
         gravatar_default_url = 'https://1.gravatar.com/avatar/435fe27bc5ddac453ada2f42329ee237?s=400&d=mm'
-
         gravatar_current = self.driver.find_element_by_class_name('gravatar')
         gravatar_current_url = gravatar_current.get_attribute("src")
-
         img_default = utils.get_image(gravatar_default_url)
         img_current = utils.get_image(gravatar_current_url)
         hash_default = utils.get_image_hash(img_default)
