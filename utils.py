@@ -6,7 +6,6 @@ import configparser
 import imagehash
 import logging
 import urllib.request
-from datetime import date, datetime
 from PIL import Image
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -103,12 +102,12 @@ def get_password(args):
     if args.password:
         password = args.password
     else:
-        username = 'needs_password'
+        password = 'needs_password'
     return password
 
 
 def get_password_obscured(password):
-    obscured_pwd = password[:2]+'--**--'+password[-2:]
+    obscured_pwd = password[:2] + '--**--' + password[-2:]
     return obscured_pwd
 
 
@@ -140,7 +139,8 @@ def get_webdriver(urlbase):
     options = Options()
     options.page_load_strategy = 'eager'
     driver = webdriver.Chrome(options=options)
-    # driver = webdriver.Remote(service.service_url)
+    driver.implicitly_wait(15)
+    driver.maximize_window()
     driver.get(urlbase)
     return driver
 

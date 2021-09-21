@@ -2,7 +2,8 @@
 #
 #
 
-import sys, time
+import sys
+import time
 import utils
 from utils import get_webdriver
 
@@ -31,13 +32,16 @@ def main():
     logger.info('::: ')
 
     # TODO: test results output artifact
-    # TODO: url as parameter / setting
+    # TODO: tie *validated* sitename to urlbase
+
+    logger.info(':::    sitename: ' + sitename)
+    logger.info('::: ')
     urlbase = 'https://wordpress.com/me'
 
     driver = get_webdriver(urlbase)
     driver.implicitly_wait(5)
 
-    # TODO:  chromedriver sessions don't persist cookies, but really should handle when already logged in
+    # TODO:  handle when already logged in
     # utils.login_check(driver)
     utils.login_site(driver, username, password)
 

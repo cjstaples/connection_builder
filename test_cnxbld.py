@@ -2,16 +2,8 @@
 #
 #
 import time
-from datetime import date, datetime
 from selenium import webdriver
-import configparser
-import logging
-import pytest
 import unittest
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 
 # local imports
 import utils
@@ -28,14 +20,13 @@ class TestSample(unittest.TestCase):
         context.driver = webdriver.Chrome()
         context.driver.implicitly_wait(15)
         context.driver.maximize_window()
-        wait = WebDriverWait(context.driver, 15)
 
         # navigate to our test url
         context.driver.get(urlbase)
         # context.driver.title
 
         config = utils.config_load()
-        sitename = config['default']['sitename']
+        # sitename = config['default']['sitename']
         username = config['default']['username']
         password = config['default']['password']
 
@@ -103,7 +94,7 @@ class TestSample(unittest.TestCase):
     def test_profile_link_single(self):
         #   verify there is exactly one profile link
         #   fail if none found, or more than one found
-        profile_links = self.driver.find_element_by_class_name('profile-links__list')
+        #   profile_links = self.driver.find_element_by_class_name('profile-links__list')
         profile_links_items = self.driver.find_elements_by_class_name('profile-link')
         time.sleep(5)
         profile_links_count = len(profile_links_items)
@@ -119,7 +110,7 @@ class TestSample(unittest.TestCase):
         hash_default = utils.get_image_hash(img_default)
         hash_current = utils.get_image_hash(img_current)
         hash_diff = hash_default - hash_current
-        assert hash_diff == 0
+        assert hash_diff < compare_tolerance
 
     @classmethod
     def tearDownClass(context):
